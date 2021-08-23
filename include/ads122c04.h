@@ -11,6 +11,9 @@
 #define ADS122C04_READ_REG      0x20
 #define ADS122C04_WRITE_REG     0x40
 
+#define ADS122C04_ADDRESS_A     0x40
+#define ADS122C04_ADDRESS_B     0x41
+
 #define RTD_A 3.9083e-3
 #define RTD_B -5.775e-7
 

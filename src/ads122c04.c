@@ -1,5 +1,4 @@
 #include <ads122c04.h>
-#include <twr_log.h>
 
 static double temperature_sensor_resistance_ohm_to_temperature_celsius(double r, double r0, double a, double b);
 
@@ -133,11 +132,6 @@ bool twr_ads122c04_read(twr_ads122c04_t *ctx, float *temperature)
 
     twr_ads122c04_register_read(ctx, 0x02, &cr2);
 
-    if ((cr2 & 0x80) == 0)
-    {
-        return false;
-    }
-
     twr_ads122c04_data_read(ctx, &data);
 
     float r_ref = 1500.0f;
@@ -146,7 +140,5 @@ bool twr_ads122c04_read(twr_ads122c04_t *ctx, float *temperature)
 
     *temperature = temperature_sensor_resistance_ohm_to_temperature_celsius(r, 1000, RTD_A, RTD_B);
 
-    twr_ads122c04_powerdown(ctx);
-
-    return true;
+    return twr_ads122c04_powerdown(ctx);
 }

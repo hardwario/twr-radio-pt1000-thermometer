@@ -42,10 +42,10 @@ struct twr_x3_t
     bool _measurement_active;
     twr_ads122c04_t ads122c04_a;
     twr_ads122c04_t ads122c04_b;
-    float temperature1;
-    float temperature2;
-    bool error1;
-    bool error2;
+    bool ads122c04_a_is_present;
+    bool ads122c04_b_is_present;
+    float ads122c04_a_temperature;
+    float ads122c04_b_temperature;
     twr_scheduler_task_id_t _task_id_interval;
     twr_scheduler_task_id_t _task_id_measure;
 };

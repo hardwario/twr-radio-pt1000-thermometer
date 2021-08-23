@@ -1,5 +1,4 @@
 #include <x3.h>
-#include <twr_log.h>
 
 #define _TWR_X3_DELAY_RUN 100
 
@@ -51,12 +50,26 @@ static void _twr_x3_task_interval(void *param)
 
 void twr_x3_get_temperature1(twr_x3_t *self, float *temperature)
 {
-    *temperature = self->temperature1;
+    if (self->ads122c04_a_is_present)
+    {
+        *temperature = self->ads122c04_a_temperature;
+    }
+    else
+    {
+        temperature = NULL;
+    }
 }
 
 void twr_x3_get_temperature2(twr_x3_t *self, float *temperature)
 {
-    *temperature = self->temperature2;
+    if (self->ads122c04_b_is_present)
+    {
+        *temperature = self->ads122c04_b_temperature;
+    }
+    else
+    {
+        temperature = NULL;
+    }
 }
 
 bool twr_x3_measure(twr_x3_t *self)
@@ -97,14 +110,16 @@ start:
         {
             self->_state = TWR_X3_STATE_ERROR;
 
-            if (!twr_ads122c04_init(&self->ads122c04_a, self->_i2c_channel, 0x40))
+            bool init_state_a = twr_ads122c04_init(&self->ads122c04_a, self->_i2c_channel, ADS122C04_ADDRESS_A);
+            bool init_state_b = twr_ads122c04_init(&self->ads122c04_b, self->_i2c_channel, ADS122C04_ADDRESS_B);
+
+            self->ads122c04_a_is_present = init_state_a;
+            self->ads122c04_b_is_present = init_state_b;
+
+            if (!init_state_a && !init_state_b)
             {
                 goto start;
             }
-            /*if(!twr_ads122c04_init(&self->ads122c04_b), self->_i2c_channel, 0x41))
-            {
-                goto start;
-            }*/
 
             self->_state = TWR_X3_STATE_MEASURE;
 
@@ -120,23 +135,27 @@ start:
         case TWR_X3_STATE_MEASURE:
         {
             self->_state = TWR_X3_STATE_ERROR;
-            //bool error2 = !twr_ads122c04_measure(&(self->ads122c04_b), &temperature2);
 
-            /*self->temperature1 = temperature1;
-            self->temperature2 = temperature2;*/
+            bool measure_state_a = true;
+            bool measure_state_b = true;
 
-            //self->_state = TWR_X3_STATE_UPDATE;
+            if (self->ads122c04_a_is_present)
+            {
+                measure_state_a = twr_ads122c04_measure(&self->ads122c04_a);
+            }
+            if (self->ads122c04_b_is_present)
+            {
+                measure_state_b = twr_ads122c04_measure(&self->ads122c04_b);
+            }
 
-            //twr_log_debug("TIMEOUT: %d", self->ads122c04_a._measurement_timeout);
-
-            if (!twr_ads122c04_measure(&self->ads122c04_a))
+            if (!measure_state_a && !measure_state_b)
             {
                 goto start;
             }
 
             self->_state = TWR_X3_STATE_READ;
 
-            self->_tick_ready = twr_tick_get() + 120;
+            self->_tick_ready = twr_tick_get() + 150;
 
             if (self->_measurement_active)
             {
@@ -149,13 +168,34 @@ start:
         {
             self->_state = TWR_X3_STATE_ERROR;
 
-            float temperature1;
-            if (!twr_ads122c04_read(&self->ads122c04_a, &temperature1))
+            float temperature_a;
+            float temperature_b;
+
+            bool read_state_a = true;
+            bool read_state_b = false;
+
+            if (self->ads122c04_a_is_present)
+            {
+                read_state_a = twr_ads122c04_read(&self->ads122c04_a, &temperature_a);
+            }
+            if (self->ads122c04_b_is_present)
+            {
+                read_state_b = twr_ads122c04_read(&self->ads122c04_b, &temperature_b);
+            }
+
+            if (!read_state_a && !read_state_b)
             {
                 goto start;
             }
 
-            self->temperature1 = temperature1;
+            if (self->ads122c04_a_is_present && read_state_a)
+            {
+                self->ads122c04_a_temperature = temperature_a;
+            }
+            if (self->ads122c04_b_is_present && read_state_b)
+            {
+                self->ads122c04_b_temperature = temperature_b;
+            }
 
             self->_state = TWR_X3_STATE_UPDATE;
             twr_scheduler_plan_current_now();
