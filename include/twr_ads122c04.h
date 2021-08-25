@@ -4,18 +4,8 @@
 #include <twr_i2c.h>
 #include <twr_scheduler.h>
 
-#define ADS122C04_RESET         0x06
-#define ADS122C04_START_SYNC    0x08
-#define ADS122C04_POWERDOWN     0x02
-#define ADS122C04_READ_DATA     0x10
-#define ADS122C04_READ_REG      0x20
-#define ADS122C04_WRITE_REG     0x40
-
-#define ADS122C04_ADDRESS_A     0x40
-#define ADS122C04_ADDRESS_B     0x41
-
-#define RTD_A 3.9083e-3
-#define RTD_B -5.775e-7
+#define TWR_ADS122C04_ADDRESS_A     0x40
+#define TWR_ADS122C04_ADDRESS_B     0x41
 
 typedef struct
 {

@@ -1,4 +1,14 @@
-#include <ads122c04.h>
+#include <twr_ads122c04.h>
+
+#define ADS122C04_RESET         0x06
+#define ADS122C04_START_SYNC    0x08
+#define ADS122C04_POWERDOWN     0x02
+#define ADS122C04_READ_DATA     0x10
+#define ADS122C04_READ_REG      0x20
+#define ADS122C04_WRITE_REG     0x40
+
+#define RTD_A 3.9083e-3
+#define RTD_B -5.775e-7
 
 static double temperature_sensor_resistance_ohm_to_temperature_celsius(double r, double r0, double a, double b);
 
@@ -96,9 +106,6 @@ bool twr_ads122c04_data_read_int32(twr_ads122c04_t *ctx, int32_t *data)
     return true;
 }
 
-// r - vstup
-// r0 1000
-// a,b koeficienty
 static double temperature_sensor_resistance_ohm_to_temperature_celsius(double r, double r0, double a, double b)
 {
     return (sqrt((a * a * r0) - (4 * b * r0) + (4 * b * r)) - (a * sqrt(r0))) / (2 * b * sqrt(r0));
@@ -111,8 +118,8 @@ bool twr_ads122c04_measure(twr_ads122c04_t *ctx)
         return false;
     }
 
-    // Set AINp = AIN1, AINn = AIN0 /*| gain2*/
-    twr_ads122c04_register_write(ctx, 0x00, 0x30/* | 0x02*/);
+    // Set AINp = AIN1, AINn = AIN0
+    twr_ads122c04_register_write(ctx, 0x00, 0x30);
     // Set external reference REFP, REFN
     twr_ads122c04_register_write(ctx, 0x01, 0x02);
     // Set IDAC 1000uA

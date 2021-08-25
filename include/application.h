@@ -7,6 +7,6 @@
 
 #include <twr.h>
 #include <bcl.h>
-#include <x3.h>
+#include <twr_chester_x3.h>
 
 #endif

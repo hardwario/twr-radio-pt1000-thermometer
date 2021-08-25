@@ -1,7 +1,7 @@
 #include <application.h>
 
 #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000) // 7 hodin
-#define PT1000_UPDATE_INTERVAL (10000)
+#define PT1000_UPDATE_INTERVAL (10 * 60 * 1000)
 
 #define TEMPERATURE_TAG_PUB_NO_CHANGE_INTEVAL (15 * 60 * 1000)
 
@@ -10,16 +10,20 @@
 // LED instance
 twr_led_t led;
 
-twr_x3_t x3;
+twr_chester_x3_t x3;
 
 twr_tick_t next_pub;
 
-void x3_event_handler(twr_x3_t *self, twr_x3_event_t event, void *event_param)
+twr_button_t button;
+
+twr_scheduler_task_id_t send_temperature;
+
+void x3_event_handler(twr_chester_x3_t *self, twr_chester_x3_event_t event, void *event_param)
 {
-    if (event == TWR_X3_EVENT_UPDATE)
+    if (event == TWR_CHESTER_X3_EVENT_UPDATE)
     {
         float temperature;
-        twr_x3_get_temperature1(self, &temperature);
+        twr_chester_x3_get_temperature_1(self, &temperature);
         twr_log_debug("Temperature: %.2f", temperature);
 
         if (next_pub < twr_scheduler_get_spin_tick())
@@ -53,6 +57,14 @@ void battery_event_handler(twr_module_battery_event_t event, void *event_param)
     }
 }
 
+void button_event_handler(twr_button_t *self, twr_button_event_t event, void *event_param)
+{
+    if (event == TWR_BUTTON_EVENT_PRESS)
+    {
+        twr_chester_x3_measure(&x3);
+    }
+}
+
 // Application initialization function which is called once after boot
 void application_init(void)
 {
@@ -63,9 +75,12 @@ void application_init(void)
     twr_led_init(&led, TWR_GPIO_LED, false, 0);
     twr_led_pulse(&led, 2000);
 
-    twr_x3_init(&x3, TWR_I2C_I2C0, TWR_X3_I2C_ADDRESS);
-    twr_x3_set_event_handler(&x3, x3_event_handler, NULL);
-    twr_x3_set_update_interval(&x3, PT1000_UPDATE_INTERVAL);
+    twr_chester_x3_init(&x3, TWR_I2C_I2C0, twr_chester_x3_I2C_ADDRESS);
+    twr_chester_x3_set_event_handler(&x3, x3_event_handler, NULL);
+    twr_chester_x3_set_update_interval(&x3, PT1000_UPDATE_INTERVAL);
+
+    twr_button_init(&button, TWR_GPIO_BUTTON, TWR_GPIO_PULL_DOWN, 0);
+    twr_button_set_event_handler(&button, button_event_handler, NULL);
 
     twr_module_battery_init();
     twr_module_battery_set_event_handler(battery_event_handler, NULL);
