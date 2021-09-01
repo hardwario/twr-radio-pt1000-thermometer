@@ -1,6 +1,6 @@
 #include <application.h>
 
-#define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000) // 7 hodin
+#define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
 #define PT1000_UPDATE_INTERVAL (10 * 60 * 1000)
 
 #define TEMPERATURE_TAG_PUB_NO_CHANGE_INTEVAL (15 * 60 * 1000)
