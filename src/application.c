@@ -1,7 +1,7 @@
 #include <application.h>
 
 #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
-#define PT1000_UPDATE_INTERVAL (10 * 60 * 1000)
+#define PT1000_UPDATE_INTERVAL (10000)
 
 #define TEMPERATURE_TAG_PUB_NO_CHANGE_INTEVAL (15 * 60 * 1000)
 
@@ -41,7 +41,6 @@ void battery_event_handler(twr_module_battery_event_t event, void *event_param)
     (void) event_param;
 
     float voltage;
-    int percentage;
 
     if (event == TWR_MODULE_BATTERY_EVENT_UPDATE)
     {
