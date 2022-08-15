@@ -1,11 +1,8 @@
 #include <application.h>
 
 #define BATTERY_UPDATE_INTERVAL (60 * 60 * 1000)
-#define PT1000_UPDATE_INTERVAL (10000)
 
-#define TEMPERATURE_TAG_PUB_NO_CHANGE_INTEVAL (15 * 60 * 1000)
-
-//#define PT1000_UPDATE_INTERVAL (5000)
+#define PT1000_UPDATE_INTERVAL (15 * 60 * 1000)
 
 // LED instance
 twr_led_t led;
@@ -16,8 +13,6 @@ twr_tick_t next_pub;
 
 twr_button_t button;
 
-twr_scheduler_task_id_t send_temperature;
-
 void x3_event_handler(twr_chester_x3_t *self, twr_chester_x3_event_t event, void *event_param)
 {
     if (event == TWR_CHESTER_X3_EVENT_UPDATE)
@@ -25,13 +20,7 @@ void x3_event_handler(twr_chester_x3_t *self, twr_chester_x3_event_t event, void
         float temperature;
         twr_chester_x3_get_temperature_1(self, &temperature);
         twr_log_debug("Temperature: %.2f", temperature);
-
-        if (next_pub < twr_scheduler_get_spin_tick())
-        {
-            twr_log_debug("Temperature: %.2f", temperature);
-            twr_radio_pub_float("temperature", &temperature);
-            next_pub = twr_scheduler_get_spin_tick() + TEMPERATURE_TAG_PUB_NO_CHANGE_INTEVAL;
-        }
+        twr_radio_pub_float("temperature", &temperature);
     }
 }
 
