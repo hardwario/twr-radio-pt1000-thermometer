@@ -5,7 +5,7 @@
 #include <twr_scheduler.h>
 #include <twr_ads122c04.h>
 
-#define twr_chester_x3_I2C_ADDRESS 0x48
+#define TWR_CHESTER_X3_I2C_ADDRESS 0x48
 
 typedef enum
 {

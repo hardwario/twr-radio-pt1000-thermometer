@@ -31,8 +31,17 @@ void battery_event_handler(twr_module_battery_event_t event, void *event_param)
 
     float voltage;
 
+    if (event == TWR_MODULE_BATTERY_EVENT_LEVEL_LOW)
+    {
+        twr_radio_pub_string("battery/warning", "LOW BATTERY");
+    }
+    if (event == TWR_MODULE_BATTERY_EVENT_LEVEL_CRITICAL)
+    {
+        twr_radio_pub_string("battery/warning", "BATTERY CRITICAL");
+    }
     if (event == TWR_MODULE_BATTERY_EVENT_UPDATE)
     {
+        twr_radio_pub_string("battery/warning", "NO WARNING");
         if (twr_module_battery_get_voltage(&voltage))
         {
             twr_radio_pub_battery(&voltage);
@@ -63,7 +72,7 @@ void application_init(void)
     twr_led_init(&led, TWR_GPIO_LED, false, 0);
     twr_led_pulse(&led, 2000);
 
-    twr_chester_x3_init(&x3, TWR_I2C_I2C0, twr_chester_x3_I2C_ADDRESS);
+    twr_chester_x3_init(&x3, TWR_I2C_I2C0, TWR_CHESTER_X3_I2C_ADDRESS);
     twr_chester_x3_set_event_handler(&x3, x3_event_handler, NULL);
     twr_chester_x3_set_update_interval(&x3, PT1000_UPDATE_INTERVAL);
 

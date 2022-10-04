@@ -17,7 +17,12 @@ bool twr_ads122c04_init(twr_ads122c04_t *ctx, twr_i2c_channel_t i2c_channel, uin
     ctx->_i2c_channel = i2c_channel;
     ctx->_address = address;
 
-    return twr_ads122c04_powerdown(ctx);
+    if (!twr_ads122c04_reset(ctx))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool twr_ads122c04_reset(twr_ads122c04_t *ctx)
